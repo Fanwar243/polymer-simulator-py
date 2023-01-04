@@ -259,23 +259,15 @@ class Reactions():
             self.rxn54()
 
     def number_of_R(self, num: int) -> int:
-        """This function returns the number of R(num) radicals where num is the number of monomers."""
+        """Returns the number of R(num) radicals where num is the number of monomers."""
         length = len([radical for radical in self.Rn if len(radical) == num+1])
         return length
 
     def new_constants(self):
         """"
         Changes the values of k31, k32, k51, and their related rate constants to
-        random integer values between 10**-1 and 10 times their original values.
+        random integer values between 10**-1 and 10 times their current values.
         """
-        #self.rate_constants["k31"] = self.rate_constants["k41"] = int(rnd.uniform(0.1, 10) * 3.6 * 10**10)
-        
-        #self.rate_constants["k32"] = self.rate_constants["k33"] = int(rnd.uniform(0.1, 10) * 18 * 10**8)
-        #self.rate_constants["k42"] = self.rate_constants["k43"] = int(rnd.uniform(0.1, 10) * 18 * 10**8)
-        
-        #self.rate_constants["k51"] = self.rate_constants["k52"] = int(rnd.uniform(0.1, 10) * 3.6 * 10**11)
-        #self.rate_constants["k53"] = self.rate_constants["k54"] = int(rnd.uniform(0.1, 10) * 3.6 * 10**11)
-        
         self.rate_constants["k31"] = self.rate_constants["k41"] = 2 * self.rate_constants["k31"]
         
         self.rate_constants["k32"] = self.rate_constants["k33"] = 2 * self.rate_constants["k32"]
@@ -285,7 +277,9 @@ class Reactions():
         self.rate_constants["k53"] = self.rate_constants["k54"] = 2 * self.rate_constants["k53"]
         
     def run_simulation(self, maxtime: int):
-        """Runs the simulation until sum of reaction rates equal 0 or maximum simulation time is reached."""
+        """Runs the simulation until sum of reaction rates equal 0 
+        or maximum simulation time is reached.
+        """
         time = 0
         self.tenMult = 0
         self.width = []
@@ -311,16 +305,10 @@ class Reactions():
             rd = rnd.rand()
             tau = np.log(1 / rd) / sum(rates) / 3600 
             time += tau
-            
-            # Find length of the longest radical chain
-            #if self.Rn != []: max_length = max([len(chain) for chain in self.Rn]) - 1
-            #else: max_length = 0
-            max_length = max([len(chain) for chain in self.Rn]) - 1
-            # Creates a list of the amount of radicals R(n)
-            #radicalnum = [self.number_of_R(n) for n in range(max_length)] #replace with just length of Rn?
 
             if time > self.tenMult * 10:
-                
+                # Find length of the longest radical chain
+                max_length = max([len(chain) for chain in self.Rn]) - 1
                 # List of probabilities of finding R_n over every other present chain length
                 self.P_n = [self.number_of_R(n)/len(self.Rn) for n in range(max_length)]
                 
@@ -342,9 +330,9 @@ class Reactions():
                 
                 self.tenMult += 1
                 
-        plt.show() #test
-                
-        # Plot width as a function of time
+        plt.show()
+
+        # Plot width against time
         time_label = [i for i in range(self.tenMult)]
         plt.plot(time_label, self.width, 'r-', linewidth = 1.0)
         plt.xlabel('Time / 10^1 s')
@@ -352,7 +340,7 @@ class Reactions():
         plt.title('Width against time')
         plt.show()
 
-        # Plot the probability density function of molecular weight
+        # Plot the probability density function and histogram of molecular weight
         plt.figure()
         chain_lengths = np.array([chain.count(0) for chain in self.Rn])
         std = np.std(chain_lengths, ddof=1)
