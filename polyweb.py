@@ -11,10 +11,8 @@ class Reactions():
     """Class containing all the possible reactions represented as methods."""
     def __init__(self, a: int, b: int):
 
-        # initial conditions
+        # initial concentrations in units of molars (M), where M = mol/litres, and volume in units of litres
         self.conc_mono = 5 * 10**-3
-        #self.conc_init = rnd.choice([10**-6, 10**-5])
-        #self.conc_raft = rnd.choice([0, 10**-6, 10**-5])
         self.conc_init = [10**-6, 10**-5][a]
         self.conc_raft = [0, 10**-6, 10**-5][b]
         self.volume = 10**-12
@@ -204,31 +202,32 @@ class Reactions():
     def calc_rates(self) -> dict:
         """Returns a dictionary of the rates of each reaction occurring keyed by the reaction name."""
         numR0 = self.Rn.count([1])
+        alpha = 1/(Avogadro*self.volume) # conversion factor [mol.litres^-1] that converts particle numbers to molarity conc.
         self.ratedict = {
             11: 
-                self.rate_constants["k11"] * 2 * self.initiator / Avogadro / self.volume,
+                self.rate_constants["k11"] * 2 * self.initiator*alpha,
             21: 
-                self.rate_constants["k21"] * (len(self.Rn) / Avogadro / self.volume) * (self.monomer / Avogadro / self.volume),
+                self.rate_constants["k21"] * (len(self.Rn)*alpha) * (self.monomer*alpha),
             31: 
-                self.rate_constants["k31"] * (len(self.Rn) - numR0) / Avogadro / self.volume * self.numT / Avogadro / self.volume,
+                self.rate_constants["k31"] * (len(self.Rn) - numR0)*alpha * self.numT*alpha,
             32: 
-                self.rate_constants["k32"] * len(self.radTRn) / Avogadro / self.volume,
+                self.rate_constants["k32"] * len(self.radTRn)*alpha,
             33: 
-                self.rate_constants["k33"] * len(self.radTRn) / Avogadro / self.volume,
+                self.rate_constants["k33"] * len(self.radTRn)*alpha,
             41: 
-                self.rate_constants["k41"] * (len(self.Rn) - numR0) / Avogadro / self.volume * len(self.TRn) / Avogadro / self.volume,
+                self.rate_constants["k41"] * (len(self.Rn) - numR0)*alpha * len(self.TRn)*alpha,
             42: 
-                self.rate_constants["k42"] * len(self.adduct) / Avogadro / self.volume,
+                self.rate_constants["k42"] * len(self.adduct)*alpha,
             43: 
-                self.rate_constants["k43"] * len(self.adduct) / Avogadro / self.volume,
+                self.rate_constants["k43"] * len(self.adduct)*alpha,
             51: 
-                self.rate_constants["k51"] * (len(self.Rn) - numR0) / Avogadro / self.volume * (len(self.Rn) - numR0-1) / Avogadro / self.volume,
+                self.rate_constants["k51"] * (len(self.Rn) - numR0)*alpha * (len(self.Rn) - numR0-1)*alpha,
             52: 
-                self.rate_constants["k52"] * (len(self.Rn) - numR0) / Avogadro / self.volume * (len(self.Rn) - numR0-1) / Avogadro / self.volume,
+                self.rate_constants["k52"] * (len(self.Rn) - numR0)*alpha * (len(self.Rn) - numR0-1)*alpha,
             53: 
-                self.rate_constants["k53"] * len(self.adduct) / Avogadro / self.volume *  numR0/ Avogadro / self.volume,
+                self.rate_constants["k53"] * len(self.adduct)*alpha *  numR0*alpha,
             54: 
-                self.rate_constants["k54"] * len(self.adduct) / Avogadro / self.volume * len(self.Rn) / Avogadro / self.volume
+                self.rate_constants["k54"] * len(self.adduct)*alpha * len(self.Rn)*alpha
         }
         return self.ratedict
     
