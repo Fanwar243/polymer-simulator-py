@@ -283,7 +283,7 @@ class Reactions():
         time = 0
         self.tenMult = 0
         self.width = []
-        plt.figure()
+
         while time < maxtime:
             # calculate rates of each potential reaction and convert them to a numpy array
             rate_dictionary = self.calc_rates()
@@ -332,27 +332,31 @@ class Reactions():
                 
         plt.show()
 
+        fig = plt.figure(figsize=(12, 5))
+        fig.suptitle(f'Simulation x results')
+
         # Plot width against time
         time_label = [i for i in range(self.tenMult)]
-        plt.plot(time_label, self.width, 'r-', linewidth = 1.0)
-        plt.xlabel('Time / 10^1 s')
-        plt.ylabel('Width')
-        plt.title('Width against time')
-        plt.show()
+
+        ax0 = fig.add_subplot(2, 2, 1)
+        ax0.plot(time_label, self.width, 'r-', linewidth = 1.0)
+        ax0.set_xlabel('Time / 10^1 s')
+        ax0.set_ylabel('Width')
+        ax0.set_title('Molecular weight distribution width against time')
 
         # Plot the probability density function and histogram of molecular weight
-        plt.figure()
         chain_lengths = np.array([chain.count(0) for chain in self.Rn])
         std = np.std(chain_lengths, ddof=1)
         mean = np.mean(chain_lengths)
         domain = np.linspace(np.min(chain_lengths), np.max(chain_lengths))
-        
-        plt.plot(domain, norm.pdf(domain,mean,std))
-        plt.hist(chain_lengths, bins=int(max(chain_lengths)), density=True)
-        
-        plt.xlabel('Molecular weight')
-        plt.ylabel('Frequency')
-        plt.title('Molecular weight distribution (polydispersity)')
+
+        ax1 = fig.add_subplot(2, 2, 2)
+        ax1.plot(domain, norm.pdf(domain,mean,std))
+        ax1.hist(chain_lengths, bins=int(max(chain_lengths)), density=True)
+        ax1.set_xlabel('Molecular weight')
+        ax1.set_ylabel('Frequency')
+        ax1.set_title('Molecular weight distribution (polydispersity)')
+
         plt.show()
         
 if __name__ == "__main__":
