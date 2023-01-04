@@ -29,7 +29,7 @@ class Reactions():
         self.adduct = []
         self.product = []
         
-        self.X = [11, 21, 31, 32, 33, 41, 42, 43, 51, 52, 53, 54]
+        self.reactions = [11, 21, 31, 32, 33, 41, 42, 43, 51, 52, 53, 54]
         
         # rate constant in units of 1/(hours * M)
         self.rate_constants = {
@@ -200,9 +200,9 @@ class Reactions():
         del self.adduct[pp2]
 
     def calc_rates(self) -> dict:
-        """Returns a dictionary of the rates of each reaction occurring keyed by the reaction name."""
+        """Returns a dictionary of each reaction and their rates of reaction."""
         numR0 = self.Rn.count([1])
-        alpha = 1/(Avogadro*self.volume) # conversion factor [mol.litres^-1] that converts particle numbers to molarity conc.
+        alpha = 1/(Avogadro*self.volume) # particle no. to molarity conversion factor [mol.litres^-1]
         self.ratedict = {
             11: 
                 self.rate_constants["k11"] * 2 * self.initiator*alpha,
@@ -265,8 +265,8 @@ class Reactions():
 
     def new_constants(self):
         """"
-        Changes the values of k31, k32, k51, and their related rate constants to
-        random integer values between 10**-1 and 10 times their current values.
+        Changes the values of k31, k32, k51, and their related 
+        rate constants to double their current values.
         """
         self.rate_constants["k31"] = self.rate_constants["k41"] = 2 * self.rate_constants["k31"]
         
@@ -298,16 +298,15 @@ class Reactions():
             else:
                 # Choose a reaction from the reaction list with weights determined by their probabilities
                 probabilities = rates / sum(rates)
-                reaction = rnd.choice(self.X, p=probabilities)
+                reaction = rnd.choice(self.reactions, p=probabilities)
                 self.run_reaction(reaction)
 
-            # Update time: Calculate tau, the time passed from the last reaction
+            # Increment time by tau, the time passed from the last reaction
             rd = rnd.rand()
             tau = np.log(1 / rd) / sum(rates) / 3600 
             time += tau
 
             if time > self.tenMult * 10:
-                # Find length of the longest radical chain
                 max_length = max([len(chain) for chain in self.Rn]) - 1
                 # List of probabilities of finding R_n over every other present chain length
                 self.P_n = [self.number_of_R(n)/len(self.Rn) for n in range(max_length)]
@@ -319,9 +318,8 @@ class Reactions():
                 plt.xlabel('Chain length, n')
                 plt.ylabel('Probability')
                 plt.title(f'Probability against chain length: {time} s')
-                #plt.show()
                 
-                # width values
+                # Store width values for plot
                 n = np.array([i for i in range(len(self.P_n))])
                 self.P_n = np.array(self.P_n)
                 n_mean = np.mean(n)
@@ -360,24 +358,7 @@ class Reactions():
         plt.show()
         
 if __name__ == "__main__":
-    # List to store the Rn values over the different initial conditions
-    Rn_list = []
-
-    # List to store the rate constant values over the different initial conditions
-    k_list = []
-
-    ### LOOP OVER INITIAL CONDITIONS ###
-
     rxndet = Reactions(a=0, b=0)
-            
-    for iteration in range(3):
-        
-        k_list.append([rxndet.rate_constants["k31"], rxndet.rate_constants["k32"], rxndet.rate_constants["k51"]])
-        
-        print(f"Initial condition {iteration+1} is {k_list[iteration]}.")
-
+    for i in range(3):
         rxndet.run_simulation(maxtime=3600)
-
-        Rn_list.append(rxndet.Rn)
-
         rxndet.new_constants()
